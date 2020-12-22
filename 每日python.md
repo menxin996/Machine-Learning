@@ -253,5 +253,36 @@ matrix[:] = np.rot90(np.array(matrix),-1).tolist()
 #法二：上下翻转，然后转置
 matrix[:]=np.array(matrix[::-1]).T.tolist()
 ----------------------------------------
-
 ```
+
+**13.python中二叉树**
+
+```python
+#二叉树的定义
+class TreeNode:
+    def _init_(self,x):
+        self.val = x
+        self.left = None
+        self.right = None
+#1.二叉树的层序遍历(BFS)
+if not root:
+    return []
+res = []
+cur_level = [root]
+depth = 0	#深度
+while cur_level:	#外层循环判断结点
+    tmp = []
+    next_level = []
+    for node in cur_level:#内层循环增加子结点
+        tmp.append(node.val)
+        if node.left:
+            next_level.append(node.left)
+        if node.right:
+            next_level.append(node.right)
+    res.append(tmp)
+    depth+=1
+    cur_level = next_level		#★
+return res
+#注意：cur_level和next_level存的都是结点，而不是结点的值
+```
+
