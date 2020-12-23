@@ -615,3 +615,171 @@ module 模块名(
 );
 ```
 
+12. **书写与设计规范**
+
+```verilog
+//1.标识符命名规范
+	1.模块名必须与文件名一致
+	2.模块名和文件名、端口名一律小写
+	3.端口定义时，同时带上方向定义 Eg:input i_data
+	4.参数命名一律大写
+	5.函数、任务、变量命名一律小写
+---------------------------------------------
+//2.统一模块实例化格式
+module_name I_XX_module_name
+(
+	//端口映射
+);
+其中：
+	XX时可选项，表示模块实例化的功能。
+```
+
+13. **基本组合电路建模**
+
+```verilog
+1.门电路建模：通过各种门电路的组合完成FPGA设计
+实现方式有三种：1.结构化描述。2.数据流描述。3.行为描述
+Eg:
+input i_a;input i_b;//输入信号
+wire w_and_o;//与门输出的中间信号
+//结构化描述：门电路原语方式
+and I_and(w_and_o,i_a,i_b);
+//数据流描述：连续赋值方式
+assign w_and_o= i_a & i_b;
+//行为描述：always进程语句
+always@(*)
+    w_and_o = i_a & i_b;
+----------------------------------------------
+2.编码器和译码器
+常见编码器：10-4译码器。功能：有四个开关，每次最多接通一个开关，编码成4位信号。Eg:接通第5个开关,输出0101
+Eg:
+input[9:0]i_data;
+output[3:0]o_code;
+always@(*)
+begin
+    case(i_data)
+        10'b0000000001:o_code = 4'b0001;
+        ...............................
+        10'b1000000000:o_code = 4'b1010;
+        default:o_code = 4'b0000;
+    endcase
+end
+常见译码器：4-10译码器。功能：根据4位输入信号的值，结同相应的开关。Eg:输入信号0110,接通第6个开关。
+Eg:
+input[3:0]i_data;
+output[9:0]o_code;
+always@(*)
+begin
+    case(i_data)
+        4'b0001:o_code = 10'b0000000001;
+        ...............................
+        4'b1010:o_code = 10'b1000000000;
+        default:o_code = 10'b0000000000;
+    endcase
+end
+应用：7段数码管：4输入，7输出。
+----------------------------------------------
+3.数据选择器和数据分配器
+常见数据选择器：4-1数据选择器
+Eg:
+input i_a;input i_b;input i_c;input i_d;
+input[1:0]i_sel;//2位选择信号
+output o_data;//1路输出信号
+always@(*)
+begin
+    case(i_sel)
+        2'b00:o_data = i_a;
+        2'b01:o_data = i_b;
+        2'b10:o_data = i_c;
+        2'b11:o_data = i_d;
+        default:o_data = 1'b0;
+    endcase
+end
+常见数据分配器：1-4数据分配器
+Eg:
+input i_data;//1路输入信号
+input[1:0]i_sel;//2位选择信号
+output o_a;
+output o_b;
+output o_c;
+output o_d;
+always@(*)
+begin
+    if(i_sel==2'b00)
+        o_a = i_data;
+    else
+        o_a = 1'b0;
+end
+....................
+always@(*)
+begin
+    if(i_sel==2'b11)
+        o_d = i_data;
+    else
+        o_d = 1'b0;
+end
+```
+
+14. **基本时序电路建模**
+
+```verilog
+//时序电路的输出不仅与输入有关，还与电路本身的状态有关。
+1.D触发器建模
+D触发器基本功能：输出端Q的更新只发生在时钟信号的上升沿，更新为此时输入端D的信号。
+Eg:
+input i_clk;	//时钟信号
+input i_clr;	//清零信号
+input i_enable	//使能信号
+input i_d;
+output o_q;
+always@(posedge i_clk,posedge i_clr)
+begin
+    if(i_clr==1'b1)	//异步清零
+        o_q = 1'b0
+    else if(i_enable==1'b1)//同步使能
+        o_q <= i_d;    	
+end
+----------------------------------------------
+2.锁存器建模
+锁存器和D触发器的区别：D触发器输出信号Q更新的时间只能发生在时钟信号的上升沿;锁存器只要使能信号有效，输出信号Q会连续被更新。
+Eg:
+input i_enable;//使能信号
+input i_d;//数据输入
+output o_q;//锁存信号输出
+always@(i_enable,i_d)
+begin
+    if(1'b1==i_enable)
+        o_q <= i_d
+end
+----------------------------------------------
+3.JK触发器建模
+逻辑转化表如下：
+```
+
+|  clk   |  J   |  K   |  Q   | Q非  |
+| :----: | :--: | :--: | :--: | :--: |
+| 上升沿 |  0   |  0   | 不变 | 不变 |
+| 上升沿 |  0   |  1   |  0   |  1   |
+| 上升沿 |  1   |  0   |  1   |  0   |
+| 上升沿 |  1   |  1   | Q非  |  Q   |
+
+```verilog
+Eg:
+input i_clk;	//使能信号
+input i_j;
+input i_k;
+output o_q;		//JK触发器正输出
+output o_qb;	//JK触发器负输出
+assign o_qb = ~o_q;
+always@(posedge i_clk)
+begin
+    case({i_j,i_k})
+        2'b00:o_q <= o_q;
+        2'b01:o_q <= 1'b0;
+        2'b10:o_q <= 1'b1;
+        2'b11:o_q <= ~o_q;
+        default:o_q <= o_q;
+    endcase
+end
+```
+
