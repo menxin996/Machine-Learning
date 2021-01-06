@@ -166,8 +166,8 @@ print(max(dic.values()))
 for key,value in dic.items():
     if(value == max(dic.values())):
         print key,value
-----------------------------------------
-#字母异位词分组
+-----------------------------------------------
+#2.字母异位词分组
 #Eg:["eat", "tea", "tan", "ate", "nat", "bat"]
 #得到：[
 #  ["ate","eat","tea"],
@@ -182,6 +182,20 @@ for s in strs:
 	else:
 		res[keys].append(s)
 print(list(res.values()))
+-----------------------------------------------
+#3.defaultdict和dict的对比
+#普通字典:dict={}，添加元素:dict[key]=value，但如果字典中没有key，查询时会报错
+#defaultdict的作用：当字典里的key不存在但被查找时，会返回一个默认值
+from collections import defaultdict
+Eg:
+    d1 = defaultdict(int)
+    d2 = defaultdict(set)
+    d3 = defaultdict(str)
+    d4 = defaultdict(list)
+	print(d1[1])	#结果：0
+	print(d2[1])	#结果：set()
+	print(d3[1])	#结果：' '
+	print(d4[1])	#结果：[]
 ```
 
 **8.python进制互转**
