@@ -300,3 +300,47 @@ return res
 #注意：cur_level和next_level存的都是结点，而不是结点的值
 ```
 
+14. **python无向图**
+
+```python
+#1.给定一个n*n的邻接矩阵m，求无向图的连通分支数
+visited = set()
+count = 0
+def dfs(i):
+    for j in range(n): 
+    	if m[i][j] and j not in visited:
+        	visited.add(j)
+        	dfs(j)
+for i in range(n):
+    if i not in visited:
+        visited.add(i)
+        count+=1
+        dfs(i)
+return count
+```
+
+15. **python并查集**
+
+```python
+#1.并查集是一种数据结构，并表示合并，查表示查找，集表示以字典为数据结构。
+#2.并查集的典型应用：图论中的连通分量问题。
+#特点：
+#并查集可以看成倒着的树，原因:树的每个结点会记录它的子节点，而并查集中每个结点会记录它的父节点。
+#注：如果结点相互连通，那么它们的祖先是相同的，可以加入同一集合。
+#3.并查集的基本操作
+3.1查找根节点
+def find(x):
+    if parent[x]!=x:
+        parent[x] = find(parent[x])	#递归找根节点
+	return parent[x]
+3.2合并两个结点
+def union(x1,x2):
+    parent[find(x1)] = find(x2) #把x1的根节点的父节点置为x2的根节点
+3.3判断两结点是否连通
+def is_connect(x1,x2):
+    return find(x1)==find(x2)
+3.4添加新结点
+def add(x):
+    if x not in parent:
+        parent[x] = None
+```
